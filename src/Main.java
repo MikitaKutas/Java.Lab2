@@ -1,10 +1,11 @@
 /**
  Ввести с консоли n-размерность матрицы a[n][n]. Задать значения элементов матрицы в интервале значений от -n до n с помощью генератора случайных
  чисел.
- Найти количество всех седловых точек матрицы (матрица А имеет седловую точку А(i, j), если А(i, j) является минимальным элементом в i-й
- строке и максимальным в j-м столбце).
+ Перестроить заданную матрицу, переставляя в ней столбцы так, чтобы значения их характеристик убывали. Характеристикой столбца прямоугольной
+ матрицы называется сумма модулей его элементов.
  */
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -20,47 +21,65 @@ public class Main {
         // Создание матрицы
         int[][] matrix = new int[n][n];
 
-        // Заполнение матрицы случайными значениями от -n до n
+        // Заполнение матрицы случайными значениями в интервале от -n до n
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 matrix[i][j] = random.nextInt(2 * n + 1) - n;
             }
         }
 
-        // Вывод матрицы
-        System.out.println("Матрица:");
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                System.out.print(matrix[i][j] + "\t");
+        // Вывод исходной матрицы
+        System.out.println("Исходная матрица:");
+        printMatrix(matrix);
+
+        // Перестройка матрицы
+        rearrangeColumns(matrix);
+
+        // Вывод перестроенной матрицы
+        System.out.println("Перестроенная матрица:");
+        printMatrix(matrix);
+    }
+
+    // Метод для вывода матрицы
+    public static void printMatrix(int[][] matrix) {
+        for (int[] row : matrix) {
+            for (int value : row) {
+                System.out.print(value + " ");
             }
             System.out.println();
         }
+    }
 
-        // Поиск седловых точек
-        int saddlePointsCount = 0;
-        for (int i = 0; i < n; i++) {
-            int minInRow = matrix[i][0];
-            int minColIndex = 0;
-            for (int j = 1; j < n; j++) {
-                if (matrix[i][j] < minInRow) {
-                    minInRow = matrix[i][j];
-                    minColIndex = j;
-                }
+    // Метод для перестройки матрицы
+    public static void rearrangeColumns(int[][] matrix) {
+        int[] columnCharacteristics = new int[matrix[0].length];
+
+        // Вычисление характеристик столбцов
+        for (int j = 0; j < matrix[0].length; j++) {
+            int sum = 0;
+            for (int i = 0; i < matrix.length; i++) {
+                sum += Math.abs(matrix[i][j]);
             }
-            boolean isSaddlePoint = true;
-            for (int k = 0; k < n; k++) {
-                if (matrix[k][minColIndex] > minInRow) {
-                    isSaddlePoint = false;
-                    break;
-                }
-            }
-            if (isSaddlePoint) {
-                saddlePointsCount++;
-                System.out.println("Седловая точка: [" + i + "][" + minColIndex + "] = " + minInRow);
-            }
+            columnCharacteristics[j] = sum;
         }
 
-        // Вывод количества седловых точек
-        System.out.println("Количество седловых точек: " + saddlePointsCount);
+        // Сортировка столбцов по убыванию характеристик
+        for (int i = 0; i < matrix[0].length - 1; i++) {
+            for (int j = 0; j < matrix[0].length - 1 - i; j++) {
+                if (columnCharacteristics[j] < columnCharacteristics[j + 1]) {
+                    // Перестановка столбцов
+                    for (int k = 0; k < matrix.length; k++) {
+                        int temp = matrix[k][j];
+                        matrix[k][j] = matrix[k][j + 1];
+                        matrix[k][j + 1] = temp;
+                    }
+                    // Перестановка характеристик
+                    int temp = columnCharacteristics[j];
+                    columnCharacteristics[j] = columnCharacteristics[j + 1];
+                    columnCharacteristics[j + 1] = temp;
+                }
+            }
+        }
     }
 }
+
